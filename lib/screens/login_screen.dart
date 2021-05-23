@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:my_rider_app/main.dart';
 import 'package:my_rider_app/screens/register_screen.dart';
+import 'package:my_rider_app/widgets/progress_dialog.dart';
 
 import 'home_screen.dart';
 
@@ -123,10 +124,18 @@ class LoginScreen extends StatelessWidget {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   void loginUser(BuildContext context) async {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return ProgressDialog('Loading, Please Wait...');
+        });
+
     final User? user = (await _firebaseAuth
             .signInWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text)
             .catchError((error) {
+      Navigator.pop(context);
       showSnackbar("Error: ${error.toString()}", context);
     }))
         .user;
@@ -138,11 +147,13 @@ class LoginScreen extends StatelessWidget {
               context, HomeScreen.idScreen, (route) => false);
         } else {
           _firebaseAuth.signOut();
+          Navigator.pop(context);
           showSnackbar(
               "user with no data. Please create a new account", context);
         }
       });
     } else {
+      Navigator.pop(context);
       showSnackbar("User not exists", context);
     }
   }

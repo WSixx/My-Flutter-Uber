@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:my_rider_app/main.dart';
 import 'package:my_rider_app/screens/home_screen.dart';
 import 'package:my_rider_app/screens/login_screen.dart';
+import 'package:my_rider_app/widgets/progress_dialog.dart';
 
 class RegisterScreen extends StatelessWidget {
   static const String idScreen = "register";
@@ -154,18 +155,18 @@ class RegisterScreen extends StatelessWidget {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   void registerNewUser(BuildContext context) async {
-/*    _firebaseAuth.authStateChanges().listen((User? user) {
-      if (user == null) {
-        print('User is currently signed out!');
-      } else {
-        print('User is signed in!');
-      }
-    });*/
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return ProgressDialog('Loading, Please Wait...');
+        });
 
     final User? user = (await _firebaseAuth
             .createUserWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text)
             .catchError((error) {
+      Navigator.pop(context);
       showSnackbar("Error: ${error.toString()}", context);
     }))
         .user;
@@ -183,6 +184,7 @@ class RegisterScreen extends StatelessWidget {
           context, HomeScreen.idScreen, (route) => false);
     } else {
       showSnackbar("Account not created", context);
+      Navigator.pop(context);
     }
   }
 
